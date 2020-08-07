@@ -10,21 +10,21 @@ fn read_file(path: &str) -> Result<File, Error> {
 }
 
 // 2. Parse the file
-fn parse_html(stringified_file: String) {
+fn parse_html(stringified_file: String) -> Result<Vec<String>, String> {
     let parsing_regex = Regex::new(r"#output").unwrap();
 
     if parsing_regex.is_match(&stringified_file) {
         let split = parsing_regex.split(&stringified_file);
+        let res: Vec<String> = split.map(|x| x.to_string()).collect();
 
-        if split.count() >= 2 {
-            // Return split
+        if res.len() >= 2 {
+            return Ok(res);
         } else {
-            // Handle error
-            println!("Not a valid template.");
+            return Err("Invalid template.".to_string());
         }
-    } else {
-        println!("not found");
     }
+
+    Err("Error".to_string())
 }
 
 // 3. Read JSON file data
@@ -35,7 +35,12 @@ fn main() -> Result<(), Error> {
 
     html_file.read_to_string(&mut html_stringified)?;
 
-    parse_html(html_stringified);
+    let res = parse_html(html_stringified);
+
+    match res {
+        Ok(v) => println!("{:?}", v),
+        Err(e) => println!("{}", e),
+    }
 
     Ok(())
 }
