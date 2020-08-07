@@ -4,8 +4,8 @@ use std::io::prelude::*;
 use std::io::Error;
 
 // 1. Read a template HTML file
-fn read_html_template() -> Result<File, Error> {
-    let file = File::open("index.html")?;
+fn read_file(path: &str) -> Result<File, Error> {
+    let file = File::open(path)?;
     return Ok(file);
 }
 
@@ -14,19 +14,28 @@ fn parse_html(stringified_file: String) {
     let parsing_regex = Regex::new(r"#output").unwrap();
 
     if parsing_regex.is_match(&stringified_file) {
-        println!("found");
+        let split = parsing_regex.split(&stringified_file);
+
+        if split.count() >= 2 {
+            // Return split
+        } else {
+            // Handle error
+            println!("Not a valid template.");
+        }
     } else {
         println!("not found");
     }
 }
 
+// 3. Read JSON file data
+
 fn main() -> Result<(), Error> {
-    let mut file = read_html_template()?;
-    let mut output = String::new();
+    let mut html_file = read_file("index.html")?;
+    let mut html_stringified = String::new();
 
-    file.read_to_string(&mut output)?;
+    html_file.read_to_string(&mut html_stringified)?;
 
-    parse_html(output);
+    parse_html(html_stringified);
 
     Ok(())
 }
