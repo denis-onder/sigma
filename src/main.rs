@@ -45,7 +45,7 @@ fn main() {
     let posts = markdown::read_markdown_files("./test");
 
     for post in posts {
-        let headers = markdown::parse_post_headers(post);
+        let headers = markdown::parse_post(post);
 
         println!("{:?}", headers);
     }

@@ -11,6 +11,7 @@ pub struct Headers {
 }
 
 // Post structure
+#[derive(Debug)]
 pub struct Post {
   pub headers: Headers,
   pub content: String,
@@ -35,13 +36,13 @@ fn parse_header(string: &str, header_name: &str) -> String {
   string.split(header_name).last().unwrap().replace("\r", "")
 }
 
-pub fn parse_post_headers(path_to_file: PathBuf) -> Headers {
+pub fn parse_post(path_to_file: PathBuf) -> Post {
   let mut post = File::open(path_to_file).unwrap();
-  let mut post_string = String::new();
+  let mut content = String::new();
 
-  post.read_to_string(&mut post_string).unwrap();
+  post.read_to_string(&mut content).unwrap();
 
-  let partials: Vec<&str> = post_string.split("\n").collect();
+  let partials: Vec<&str> = content.split("\n").collect();
   // Placeholder variables for headers
   let mut template: String = String::new();
   let mut author: String = String::new();
@@ -62,9 +63,12 @@ pub fn parse_post_headers(path_to_file: PathBuf) -> Headers {
   }
 
   // Return headers
-  return Headers {
-    template,
-    author,
-    date,
-  };
+  Post {
+    headers: Headers {
+      template,
+      author,
+      date,
+    },
+    content,
+  }
 }
