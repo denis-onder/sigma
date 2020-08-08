@@ -18,7 +18,8 @@ use uuid::Uuid;
  * 2. Unzip the project
  * 3. Parse Markdown posts
  * 4. Generate HTML from those posts using the Handlebars engine
- * 5. Remove the project directory and the zip file
+ * 5. Zip the generated project and serve it to the user
+ * 6. Remove the project directory and the source zip file
  */
 
 // 1. Unzip project
