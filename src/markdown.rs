@@ -62,7 +62,7 @@ pub fn parse_post(path_to_file: PathBuf) -> Post {
     }
   }
 
-  // Return headers
+  // Return post
   Post {
     headers: Headers {
       template,
