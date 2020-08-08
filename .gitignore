@@ -2,4 +2,4 @@ cargo.lock
 archive.zip
 
 /target
-/testdir
+/test

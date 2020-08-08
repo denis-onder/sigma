@@ -26,7 +26,7 @@ fn unzip() {
 
     match file {
         Ok(f) => {
-            let unzip_result = Unzipper::new(f, "./testdir").unzip();
+            let unzip_result = Unzipper::new(f, "./test").unzip();
 
             match unzip_result {
                 Ok(_) => println!("Unzipped"),
@@ -42,5 +42,11 @@ fn main() {
 
     unzip();
 
-    markdown::read_markdown_files("./testdir");
+    let posts = markdown::read_markdown_files("./test");
+
+    for post in posts {
+        let headers = markdown::parse_post_headers(post);
+
+        println!("{:?}", headers);
+    }
 }
