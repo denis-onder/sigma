@@ -4,6 +4,7 @@ extern crate uuid;
 mod markdown;
 
 // use std::fs::remove_dir_all;
+use std::env;
 use std::fs::File;
 use unzip::Unzipper;
 use uuid::Uuid;
@@ -48,6 +49,9 @@ fn unzip() -> String {
 }
 
 fn main() {
+    let args: Vec<String> = env::args().collect();
+
+    println!("{:?}", args);
     // Unzip the archive, returning the output folder name
     let folder_name = unzip();
 
