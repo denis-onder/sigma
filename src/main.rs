@@ -24,10 +24,10 @@ use uuid::Uuid;
  */
 
 // 1. Unzip project
-fn unzip() -> String {
+fn unzip(zip_archive_name: String) -> String {
     // Generate UUID to be used as a temporary folder name
     let folder_name = Uuid::new_v4().to_string();
-    let file = File::open("archive.zip");
+    let file = File::open(zip_archive_name);
 
     match file {
         Ok(f) => {
@@ -50,10 +50,13 @@ fn unzip() -> String {
 
 fn main() {
     let args: Vec<String> = env::args().collect();
+    let mut zip_archive_name: String = args.last().unwrap().to_string();
 
-    println!("{:?}", args);
+    if !zip_archive_name.contains(".zip") {
+        zip_archive_name = "archive.zip".to_owned();
+    }
     // Unzip the archive, returning the output folder name
-    let folder_name = unzip();
+    let folder_name = unzip(zip_archive_name);
 
     let posts = markdown::read_markdown_files(&folder_name);
 
