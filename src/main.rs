@@ -1,6 +1,8 @@
 extern crate handlebars;
 extern crate unzip;
 
+mod markdown;
+
 // use handlebars::Handlebars;
 use std::fs::File;
 use unzip::Unzipper;
@@ -39,4 +41,6 @@ fn main() {
     println!("Sigma");
 
     unzip();
+
+    markdown::read_markdown_files("./testdir");
 }
