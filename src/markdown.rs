@@ -1,3 +1,4 @@
+use handlebars::Handlebars;
 use std::fs::{read_dir, File};
 use std::io::Read;
 use std::path::PathBuf;
@@ -17,8 +18,8 @@ pub struct Post {
   pub content: String,
 }
 
-pub fn read_markdown_files(path: &str) -> Vec<PathBuf> {
-  let mut path = path.to_owned();
+pub fn read_markdown_files(path: &String) -> Vec<PathBuf> {
+  let mut path = path.clone();
   path.push_str("/posts");
 
   let files = read_dir(&path).unwrap();
@@ -71,4 +72,10 @@ pub fn parse_post(path_to_file: PathBuf) -> Post {
     },
     content,
   }
+}
+
+pub fn generate_post_page(post: Post) {
+  let reg = Handlebars::new();
+
+  // Read template file
 }

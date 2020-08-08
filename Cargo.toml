@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 unzip = "0.1.0"
 handlebars = "3.3.0"
+uuid = { version = "0.8.1", features = ["v4"] }

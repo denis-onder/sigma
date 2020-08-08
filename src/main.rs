@@ -1,11 +1,13 @@
 extern crate handlebars;
 extern crate unzip;
+extern crate uuid;
 
 mod markdown;
 
-// use handlebars::Handlebars;
-use std::fs::File;
+use std::borrow::Cow;
+use std::fs::{remove_dir_all, File};
 use unzip::Unzipper;
+use uuid::Uuid;
 
 /**
  * CONCEPT:
@@ -21,12 +23,18 @@ use unzip::Unzipper;
  */
 
 // 1. Unzip project
-fn unzip() {
+fn unzip() -> String {
+    // Generate UUID to be used as a temporary folder name
+    let folder_name = Uuid::new_v4().to_string();
     let file = File::open("archive.zip");
 
     match file {
         Ok(f) => {
-            let unzip_result = Unzipper::new(f, "./test").unzip();
+            // Build a string pointing to the new folder
+            let mut path = String::new();
+            path.push_str(&folder_name);
+
+            let unzip_result = Unzipper::new(f, path).unzip();
 
             match unzip_result {
                 Ok(_) => println!("Unzipped"),
@@ -35,18 +43,22 @@ fn unzip() {
         }
         Err(e) => panic!("{}", e),
     }
+
+    folder_name
 }
 
 fn main() {
-    println!("Sigma");
+    // Unzip the archive, returning the output folder name
+    let folder_name = unzip();
 
-    unzip();
+    let posts = markdown::read_markdown_files(&folder_name);
 
-    let posts = markdown::read_markdown_files("./test");
+    for p in posts {
+        let post = markdown::parse_post(p);
 
-    for post in posts {
-        let headers = markdown::parse_post(post);
-
-        println!("{:?}", headers);
+        println!("{:?}", post.headers.author);
     }
+
+    // Finally, remove the temp directory
+    remove_dir_all(folder_name);
 }
