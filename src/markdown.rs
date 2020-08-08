@@ -40,36 +40,46 @@ fn parse_header(string: &str, header_name: &str) -> String {
 
 pub fn parse_post(path_to_file: &PathBuf) -> Post {
   let mut post = File::open(path_to_file).unwrap();
-  let mut content = String::new();
+  let mut post_content = String::new();
 
   let file_name = path_to_file.file_name().unwrap().to_owned();
 
-  post.read_to_string(&mut content).unwrap();
+  post.read_to_string(&mut post_content).unwrap();
 
-  let partials: Vec<&str> = content.split("\n").collect();
+  let partials: Vec<&str> = post_content.split("\n").collect();
   // Placeholder variables for headers
   let mut template: String = String::new();
   let mut author: String = String::new();
   let mut date: String = String::new();
   let mut title: String = String::new();
 
-  for i in partials.iter() {
-    if i.contains("template") {
-      template = parse_header(i, "template: ");
+  let mut headers_end_index: usize = 0;
+
+  for (i, partial) in partials.iter().enumerate() {
+    // Check for headers
+    if partial.contains("template: ") {
+      template = parse_header(partial, "template: ");
     }
 
-    if i.contains("author") {
-      author = parse_header(i, "author: ");
+    if partial.contains("author: ") {
+      author = parse_header(partial, "author: ");
     }
 
-    if i.contains("date") {
-      date = parse_header(i, "date: ");
+    if partial.contains("date: ") {
+      date = parse_header(partial, "date: ");
     }
 
-    if i.contains("title") {
-      title = parse_header(i, "title: ");
+    if partial.contains("title: ") {
+      title = parse_header(partial, "title: ");
+    }
+
+    // Check if headers have ended
+    if partial.trim() == "---" {
+      headers_end_index = i;
     }
   }
+
+  let (_, content) = partials.split_at(headers_end_index + 1);
 
   // Return post
   Post {
@@ -78,7 +88,7 @@ pub fn parse_post(path_to_file: &PathBuf) -> Post {
     author,
     date,
     title,
-    content,
+    content: content.join("\n"),
   }
 }
 
@@ -106,5 +116,5 @@ pub fn generate_post_page(base_folder_name: &String, post: Post) {
 
   let mut output_file = File::create(output_path).unwrap();
 
-  output_file.write(result.as_bytes());
+  output_file.write(result.as_bytes()).unwrap();
 }
