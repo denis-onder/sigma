@@ -1,11 +1,10 @@
-extern crate handlebars;
 extern crate unzip;
 extern crate uuid;
 
 mod markdown;
 
-use std::borrow::Cow;
-use std::fs::{remove_dir_all, File};
+// use std::fs::remove_dir_all;
+use std::fs::File;
 use unzip::Unzipper;
 use uuid::Uuid;
 
@@ -54,11 +53,11 @@ fn main() {
     let posts = markdown::read_markdown_files(&folder_name);
 
     for p in posts {
-        let post = markdown::parse_post(p);
+        let post = markdown::parse_post(&p);
 
-        println!("{:?}", post.headers.author);
+        markdown::generate_post_page(&folder_name, post);
     }
 
     // Finally, remove the temp directory
-    remove_dir_all(folder_name);
+    // remove_dir_all(folder_name); // Re-enable this for production after the user has been served
 }
