@@ -53,7 +53,7 @@ fn main() {
     let mut zip_archive_name: String = args.last().unwrap().to_string();
 
     if !zip_archive_name.contains(".zip") {
-        zip_archive_name = "archive.zip".to_owned();
+        zip_archive_name = "example.zip".to_owned();
     }
     // Unzip the archive, returning the output folder name
     let folder_name = unzip(zip_archive_name);
