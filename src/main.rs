@@ -4,8 +4,10 @@ extern crate uuid;
 mod markdown;
 
 // use std::fs::remove_dir_all;
+use markdown::FolderPaths;
 use std::env;
-use std::fs::File;
+use std::fs::{create_dir, File};
+use std::path::PathBuf;
 use unzip::Unzipper;
 use uuid::Uuid;
 
@@ -24,28 +26,36 @@ use uuid::Uuid;
  */
 
 // 1. Unzip project
-fn unzip(zip_archive_name: String) -> String {
+fn unzip(zip_archive_name: &String) -> FolderPaths {
     // Generate UUID to be used as a temporary folder name
     let folder_name = Uuid::new_v4().to_string();
     let file = File::open(zip_archive_name);
 
+    // Build a string pointing to the new folder
+    let mut path = PathBuf::new();
+
     match file {
         Ok(f) => {
-            // Build a string pointing to the new folder
-            let mut path = String::new();
-            path.push_str(&folder_name);
+            path.push(&folder_name);
 
-            let unzip_result = Unzipper::new(f, path).unzip();
+            let unzip_result = Unzipper::new(f, &path).unzip();
 
             match unzip_result {
-                Ok(_) => println!("Unzipped"),
+                Ok(_) => {
+                    println!("Unzipped {}", zip_archive_name);
+                    path.push("build");
+                    create_dir(&path).unwrap();
+                }
                 Err(e) => panic!("{}", e),
             }
         }
         Err(e) => panic!("{}", e),
     }
 
-    folder_name
+    FolderPaths {
+        src: folder_name,
+        build: path,
+    }
 }
 
 fn main() {
@@ -56,9 +66,9 @@ fn main() {
         zip_archive_name = "example.zip".to_owned();
     }
     // Unzip the archive, returning the output folder name
-    let folder_name = unzip(zip_archive_name);
+    let folder_name = unzip(&zip_archive_name);
 
-    let posts = markdown::read_markdown_files(&folder_name);
+    let posts = markdown::read_markdown_files(&folder_name.src);
 
     for p in posts {
         let post = markdown::parse_post(&p);

@@ -4,7 +4,7 @@ extern crate serde;
 use handlebars::Handlebars;
 use serde::Serialize;
 use std::ffi::OsString;
-use std::fs::{read_dir, File};
+use std::fs::{create_dir, metadata, read_dir, File};
 use std::io::{Read, Write};
 use std::path::PathBuf;
 
@@ -17,6 +17,11 @@ pub struct Post {
   pub date: String,
   pub title: String,
   pub content: String,
+}
+
+pub struct FolderPaths {
+  pub src: String,
+  pub build: PathBuf,
 }
 
 pub fn read_markdown_files(path: &String) -> Vec<PathBuf> {
@@ -92,12 +97,16 @@ pub fn parse_post(path_to_file: &PathBuf) -> Post {
   }
 }
 
-pub fn generate_post_page(base_folder_name: &String, post: Post) {
+fn path_exists(path: &PathBuf) -> bool {
+  metadata(path).is_ok()
+}
+
+pub fn generate_post_page(paths: &FolderPaths, post: Post) {
   let reg = Handlebars::new();
 
   // Generate path to template
   let mut path = PathBuf::new();
-  path.push(base_folder_name);
+  path.push(&paths.src);
   path.push("templates");
   path.push(&post.template);
   path.set_extension("hbs");
@@ -107,7 +116,13 @@ pub fn generate_post_page(base_folder_name: &String, post: Post) {
   let mut template_string = String::new();
 
   let mut output_path = PathBuf::new();
-  output_path.push(base_folder_name);
+  output_path.push(&paths.build);
+  output_path.push("posts");
+
+  if !path_exists(&output_path) {
+    create_dir(&output_path).unwrap();
+  }
+
   output_path.push(&post.file_name);
   output_path.set_extension("html");
 
