@@ -8,7 +8,8 @@ edition = "2018"
 
 [dependencies]
 unzip = "0.1.0"
+comrak = "0.8"
+sass-rs = "0.2.2"
 handlebars = "3.3.0"
 serde = { version = "1.0.114", features = ["derive"] }
 uuid = { version = "0.8.1", features = ["v4"] }
-comrak = "0.8"

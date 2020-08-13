@@ -2,8 +2,10 @@ mod markdown;
 
 // use std::fs::remove_dir_all;
 use markdown::{generate_post_page, parse_post, read_markdown_files, FolderPaths};
+use sass_rs::{compile_file, Options};
 use std::env;
 use std::fs::{create_dir, metadata, read_dir, File};
+use std::io::prelude::*;
 use std::path::PathBuf;
 use unzip::Unzipper;
 use uuid::Uuid;
@@ -22,7 +24,28 @@ use uuid::Uuid;
  * 6. Remove the project directory and the source zip file
  */
 
-fn build_assets(path: &PathBuf) {
+fn generate_extension(string: &String) -> String {
+    let image_extensions = vec!["jpg", "jpeg", "png", "svg", "bmp", "gif"];
+    let css_extensions = vec!["sass", "scss"];
+
+    // If the file is an image, create a folder called `img`
+    for x in image_extensions {
+        if x.to_string() == string.to_owned() {
+            return "img".to_string();
+        }
+    }
+
+    // If the file is an stylesheet, create a folder called `css`
+    for y in css_extensions {
+        if y.to_string() == string.to_owned() {
+            return "css".to_string();
+        }
+    }
+
+    string.to_owned()
+}
+
+fn build_assets(path: &PathBuf, output_path: &PathBuf) {
     // Copy the contents of the assets folder to the build directory if the folder exists
     if metadata(PathBuf::from(&path)).is_ok() {
         let asset_folders = read_dir(&path).unwrap();
@@ -34,7 +57,32 @@ fn build_assets(path: &PathBuf) {
             let folder = read_dir(path).unwrap();
 
             for file in folder {
-                println!("{:?}", file.unwrap().file_name());
+                let file = file.unwrap();
+                let file_name = file.file_name().to_str().unwrap().to_string();
+                let extension =
+                    generate_extension(&file_name.split(".").last().unwrap().to_string());
+
+                // Create an output folder for the files respective to their type
+                let mut copy_path = PathBuf::from(&output_path);
+                copy_path.push(extension);
+
+                if !metadata(&copy_path).is_ok() {
+                    create_dir(&copy_path).unwrap();
+                }
+
+                if !file_name.contains("__")
+                    && (file_name.contains(".scss") || file_name.contains(".sass"))
+                {
+                    let compiled = compile_file(file.path(), Options::default()).unwrap();
+
+                    // Write the compiled Sass to a CSS file
+                    let mut css_path = PathBuf::from(&copy_path);
+                    css_path.push(&file_name);
+                    css_path.set_extension("css");
+
+                    let mut css_file = File::create(css_path).unwrap();
+                    css_file.write(compiled.as_bytes()).unwrap();
+                }
             }
         }
     }
@@ -87,7 +135,7 @@ fn main() {
     assets_path.push(&folder_names.src);
     assets_path.push("assets");
 
-    build_assets(&assets_path);
+    build_assets(&assets_path, &folder_names.build);
 
     let posts = read_markdown_files(&folder_names.src);
 
