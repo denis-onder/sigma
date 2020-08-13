@@ -8,18 +8,31 @@
 
 ```
 .
-├───assets (Currently not in use)
+├───assets 
+│   │   
+│   ├─sass
+│   │ │ 
+│   │ ├─__partial.scss
+│   │ │ 
+│   │ └─style.scss
+│   │
+│   ├─js
+│   │ │ 
+│   │ └─script.js
+│   └─img
+│     │ 
+│     └─banner.img
 │   
-├───posts (Blog posts written in Markdown go here)
+├───posts 
 │   └─post.md 
 │   
-└───templates (Handlebars templates go here)
+└───templates
     └─post.hbs
 ```
 
-2. Put the `.zip` archive into the root directory of the folder.
+1. Put the `.zip` archive into the root directory of the folder.
 
-3. Execute `cargo run your_archive_name.zip`
+2. Execute `cargo run your_archive_name.zip`
 
 ---
 
@@ -52,6 +65,7 @@ Example Handlebars Template:
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ title }}</title>
+  <link rel="stylesheet" href="../css/style.css">
 </head>
 
 <body>
