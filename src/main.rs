@@ -6,7 +6,7 @@ mod markdown;
 // use std::fs::remove_dir_all;
 use markdown::{generate_post_page, parse_post, read_markdown_files, FolderPaths};
 use std::env;
-use std::fs::{create_dir, File};
+use std::fs::{create_dir, metadata, read_dir, File};
 use std::path::PathBuf;
 use unzip::Unzipper;
 use uuid::Uuid;
@@ -24,6 +24,24 @@ use uuid::Uuid;
  * 5. Zip the generated project and serve it to the user
  * 6. Remove the project directory and the source zip file
  */
+
+fn build_assets(path: &PathBuf) {
+    // Copy the contents of the assets folder to the build directory if the folder exists
+    if metadata(PathBuf::from(&path)).is_ok() {
+        let asset_folders = read_dir(&path).unwrap();
+
+        for asset_folder in asset_folders {
+            let path = &asset_folder.unwrap().path();
+
+            // Read the directory
+            let folder = read_dir(path).unwrap();
+
+            for file in folder {
+                println!("{:?}", file.unwrap().file_name());
+            }
+        }
+    }
+}
 
 // 1. Unzip project
 fn unzip(zip_archive_name: &String) -> FolderPaths {
@@ -67,6 +85,12 @@ fn main() {
     }
     // Unzip the archive, returning the output folder name
     let folder_names = unzip(&zip_archive_name);
+
+    let mut assets_path = PathBuf::new();
+    assets_path.push(&folder_names.src);
+    assets_path.push("assets");
+
+    build_assets(&assets_path);
 
     let posts = read_markdown_files(&folder_names.src);
 
