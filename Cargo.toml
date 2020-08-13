@@ -11,3 +11,4 @@ unzip = "0.1.0"
 handlebars = "3.3.0"
 serde = { version = "1.0.114", features = ["derive"] }
 uuid = { version = "0.8.1", features = ["v4"] }
+comrak = "0.8"

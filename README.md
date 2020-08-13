@@ -59,7 +59,7 @@ Example Handlebars Template:
   <h4>by {{ author }}</h4>
   <p>{{ date }}</p>
   <hr>
-  {{ content }}
+  {{{ content }}}
 </body>
 
 </html>

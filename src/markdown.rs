@@ -1,11 +1,13 @@
+extern crate comrak;
 extern crate handlebars;
 extern crate serde;
 
+use comrak::{markdown_to_html, ComrakOptions};
 use handlebars::Handlebars;
 use serde::Serialize;
 use std::ffi::OsString;
 use std::fs::{create_dir, metadata, read_dir, File};
-use std::io::{Read, Write};
+use std::io::Read;
 use std::path::PathBuf;
 
 // Post structure
@@ -85,6 +87,7 @@ pub fn parse_post(path_to_file: &PathBuf) -> Post {
   }
 
   let (_, content) = partials.split_at(headers_end_index + 1);
+  let content = markdown_to_html(&content.join("\n"), &ComrakOptions::default());
 
   // Return post
   Post {
@@ -93,7 +96,7 @@ pub fn parse_post(path_to_file: &PathBuf) -> Post {
     author,
     date,
     title,
-    content: content.join("\n"),
+    content,
   }
 }
 
@@ -127,9 +130,7 @@ pub fn generate_post_page(paths: &FolderPaths, post: Post) {
   output_path.set_extension("html");
 
   template.read_to_string(&mut template_string).unwrap();
-  let result = reg.render_template(&template_string, &post).unwrap();
-
-  let mut output_file = File::create(output_path).unwrap();
-
-  output_file.write(result.as_bytes()).unwrap();
+  reg
+    .render_template_to_write(&template_string, &post, File::create(output_path).unwrap())
+    .unwrap();
 }

@@ -4,7 +4,7 @@ extern crate uuid;
 mod markdown;
 
 // use std::fs::remove_dir_all;
-use markdown::FolderPaths;
+use markdown::{generate_post_page, parse_post, read_markdown_files, FolderPaths};
 use std::env;
 use std::fs::{create_dir, File};
 use std::path::PathBuf;
@@ -66,14 +66,18 @@ fn main() {
         zip_archive_name = "example.zip".to_owned();
     }
     // Unzip the archive, returning the output folder name
-    let folder_name = unzip(&zip_archive_name);
+    let folder_names = unzip(&zip_archive_name);
 
-    let posts = markdown::read_markdown_files(&folder_name.src);
+    let posts = read_markdown_files(&folder_names.src);
 
     for p in posts {
-        let post = markdown::parse_post(&p);
+        println!(
+            "Parsing and generating page for: {:?}",
+            p.file_name().unwrap()
+        );
+        let post = parse_post(&p);
 
-        markdown::generate_post_page(&folder_name, post);
+        generate_post_page(&folder_names, post);
     }
 
     // Finally, remove the temp directory
