@@ -4,7 +4,7 @@ mod markdown;
 use markdown::{generate_post_page, parse_post, read_markdown_files, FolderPaths};
 use sass_rs::{compile_file, Options};
 use std::env;
-use std::fs::{create_dir, metadata, read_dir, File};
+use std::fs::{copy, create_dir, metadata, read_dir, File};
 use std::io::prelude::*;
 use std::path::PathBuf;
 use unzip::Unzipper;
@@ -69,7 +69,7 @@ fn build_assets(path: &PathBuf, output_path: &PathBuf) {
                 if !metadata(&copy_path).is_ok() {
                     create_dir(&copy_path).unwrap();
                 }
-
+                // Check if the file is a Sass/SCSS file
                 if !file_name.contains("__")
                     && (file_name.contains(".scss") || file_name.contains(".sass"))
                 {
@@ -82,6 +82,10 @@ fn build_assets(path: &PathBuf, output_path: &PathBuf) {
 
                     let mut css_file = File::create(css_path).unwrap();
                     css_file.write(compiled.as_bytes()).unwrap();
+                } else {
+                    // Copy the file over to it's new directory
+                    copy_path.push(&file_name);
+                    copy(file.path(), copy_path).unwrap();
                 }
             }
         }
