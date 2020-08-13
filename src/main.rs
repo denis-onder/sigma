@@ -1,6 +1,3 @@
-extern crate unzip;
-extern crate uuid;
-
 mod markdown;
 
 // use std::fs::remove_dir_all;

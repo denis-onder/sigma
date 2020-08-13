@@ -1,7 +1,3 @@
-extern crate comrak;
-extern crate handlebars;
-extern crate serde;
-
 use comrak::{markdown_to_html, ComrakOptions};
 use handlebars::Handlebars;
 use serde::Serialize;
