@@ -1,7 +1,7 @@
 mod markdown;
 
 // use std::fs::remove_dir_all;
-use markdown::{generate_post_page, parse_post, read_markdown_files, FolderPaths};
+use markdown::{generate_post_page, parse_post, read_markdown_files, FolderPaths, Post};
 use sass_rs::{compile_file, Options};
 use std::env;
 use std::fs::{copy, create_dir, metadata, read_dir, File};
@@ -141,17 +141,21 @@ fn main() {
 
     build_assets(&assets_path, &folder_names.build);
 
-    let posts = read_markdown_files(&folder_names.src);
+    let post_paths = read_markdown_files(&folder_names.src);
+    let mut posts: Vec<Post> = vec![];
 
-    for p in posts {
+    for p in post_paths {
         println!(
             "Parsing and generating page for: {:?}",
             p.file_name().unwrap()
         );
         let post = parse_post(&p);
+        generate_post_page(&folder_names, &post);
 
-        generate_post_page(&folder_names, post);
+        posts.push(post);
     }
+
+    println!("{}", posts.len());
 
     // Finally, remove the temp directory
     // remove_dir_all(folder_name); // Re-enable this for production after the user has been served

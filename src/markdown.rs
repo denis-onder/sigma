@@ -100,7 +100,7 @@ fn path_exists(path: &PathBuf) -> bool {
   metadata(path).is_ok()
 }
 
-pub fn generate_post_page(paths: &FolderPaths, post: Post) {
+pub fn generate_post_page(paths: &FolderPaths, post: &Post) {
   let reg = Handlebars::new();
 
   // Generate path to template
