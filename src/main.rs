@@ -1,3 +1,4 @@
+mod index_page;
 mod markdown;
 
 // use std::fs::remove_dir_all;
@@ -156,6 +157,8 @@ fn main() {
     }
 
     println!("{}", posts.len());
+
+    index_page::read_index_page(&folder_names.src);
 
     // Finally, remove the temp directory
     // remove_dir_all(folder_name); // Re-enable this for production after the user has been served
