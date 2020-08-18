@@ -158,7 +158,7 @@ fn main() {
 
     println!("{}", posts.len());
 
-    index_page::read_index_page(&folder_names.src);
+    index_page::generate_index_page(posts, &folder_names.src);
 
     // Finally, remove the temp directory
     // remove_dir_all(folder_name); // Re-enable this for production after the user has been served
