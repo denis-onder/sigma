@@ -12,6 +12,22 @@ use std::path::PathBuf;
 use unzip::Unzipper;
 use uuid::Uuid;
 
+/**
+ * CONCEPT:
+ * 1. User sends a zipped project with:
+ *    1.1. Assets in assets folder (CSS, JS, etc),
+ *    1.2. Posts in posts folder (Markdown),
+ *    1.3. Templates in the templates folder (Handlebars)
+ *
+ * 2. Unzip the project
+ * 3. Parse Markdown posts
+ * 4. Register all partials
+ * 5. Generate the HTML from the templates and the posts using the Handlebars engine
+ * 6. Compile the SCSS if there is any, and build out the projectž
+ * 7. Zip the build and serve it to the user
+ * 8. Remove the project directory and the source zip file
+ */
+
 #[derive(Serialize)]
 struct IndexPage {
     posts: Vec<Post>,
@@ -40,19 +56,6 @@ fn generate_index_page(posts: Vec<Post>, base_folder_path: &String) {
     reg.render_template_to_write(&template_string, &data, output_file)
         .unwrap();
 }
-/**
- * CONCEPT:
- * 1. User sends a zipped project with:
- *    1.1. Assets in assets folder (CSS, JS, etc),
- *    1.2. Posts in posts folder (Markdown),
- *    1.3. Templates in the templates folder (Handlebars)
- *
- * 2. Unzip the project
- * 3. Parse Markdown posts
- * 4. Generate HTML from those posts using the Handlebars engine
- * 5. Zip the generated project and serve it to the user
- * 6. Remove the project directory and the source zip file
- */
 
 fn generate_extension(string: &String) -> String {
     let image_extensions = vec!["jpg", "jpeg", "png", "svg", "bmp", "gif"];
