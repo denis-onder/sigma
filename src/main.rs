@@ -172,7 +172,7 @@ fn register_partials(base_path: &String) {
     for f in files {
         let partial_name = f.unwrap().path().file_name().unwrap();
 
-        reg.register_partial(partial_name.to_str(), f);
+        // reg.register_partial(partial_name.to_str().unwrap(), f.unwrap().path());
     }
 }
 
