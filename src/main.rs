@@ -209,7 +209,7 @@ fn main() {
         posts.push(post);
     }
 
-    println!("{}", posts.len());
+    println!("Posts generated: {}", posts.len());
 
     generate_index_page(posts, &folder_names.src);
 
