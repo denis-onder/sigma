@@ -38,11 +38,13 @@ fn generate_index_page(posts: Vec<Post>, base_folder_path: &String) {
 
     let mut file_path = PathBuf::new();
     file_path.push(base_folder_path);
-    file_path.push("index");
 
     let mut output_file_path = PathBuf::from(&file_path);
-
+    file_path.push("index");
     file_path.set_extension("hbs");
+
+    output_file_path.push("build");
+    output_file_path.push("index");
     output_file_path.set_extension("html");
 
     let output_file = File::create(output_file_path).unwrap();
@@ -158,6 +160,15 @@ fn unzip(zip_archive_name: &String) -> FolderPaths {
     }
 }
 
+fn register_partials(base_path: &String) {
+    // Create a path buffer to the partials folder path
+    let mut partials_path = PathBuf::new();
+    partials_path.push(base_path);
+    partials_path.push("partials");
+
+    println!("Partials path: {:?}", partials_path)
+}
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let mut zip_archive_name: String = args.last().unwrap().to_string();
@@ -173,6 +184,9 @@ fn main() {
     assets_path.push("assets");
 
     build_assets(&assets_path, &folder_names.build);
+
+    // Register partials
+    register_partials(&folder_names.src);
 
     let post_paths = read_markdown_files(&folder_names.src);
     let mut posts: Vec<Post> = vec![];
