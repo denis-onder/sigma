@@ -166,7 +166,14 @@ fn register_partials(base_path: &String) {
     partials_path.push(base_path);
     partials_path.push("partials");
 
-    println!("Partials path: {:?}", partials_path)
+    let reg = Handlebars::new();
+
+    let files = read_dir(partials_path).unwrap();
+    for f in files {
+        let partial_name = f.unwrap().path().file_name().unwrap();
+
+        reg.register_partial(partial_name.to_str(), f);
+    }
 }
 
 fn main() {
