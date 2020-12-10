@@ -166,20 +166,33 @@ fn register_partials(base_path: &String) {
     partials_path.push(base_path);
     partials_path.push("partials");
 
-    let reg = Handlebars::new();
+    let mut reg = Handlebars::new();
 
     let files = read_dir(partials_path).unwrap();
-    for f in files {
-        let partial_name = f.unwrap().path().file_name().unwrap();
 
-        // reg.register_partial(partial_name.to_str().unwrap(), f.unwrap().path());
+    for file in files {
+        let partial_metadata = file.unwrap();
+
+        // Extract the filename and path from the metadata
+        let partial_path = partial_metadata.path();
+        let partial_name = partial_metadata.file_name().into_string().unwrap();
+        let partial_name_fragments: Vec<&str> = partial_name.split(".").collect();
+        let partial_name =  partial_name_fragments.first().unwrap();
+
+        // Read the partial file and plug the string in as the template for registration
+        let mut partial_file = File::open(partial_path).unwrap();
+        let mut partial_string = String::new();
+
+        partial_file.read_to_string(&mut partial_string);
+
+        // Register the partial
+        reg.register_partial(partial_name, partial_string);
     }
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
     let mut zip_archive_name: String = args.last().unwrap().to_string();
-
     if !zip_archive_name.contains(".zip") {
         zip_archive_name = "example.zip".to_owned();
     }
