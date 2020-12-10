@@ -183,10 +183,11 @@ fn register_partials(base_path: &String) {
         let mut partial_file = File::open(partial_path).unwrap();
         let mut partial_string = String::new();
 
-        partial_file.read_to_string(&mut partial_string);
+        partial_file.read_to_string(&mut partial_string).unwrap();
 
         // Register the partial
-        reg.register_partial(partial_name, partial_string);
+        println!("Registering partial: {}", partial_name);
+        reg.register_partial(partial_name, partial_string).unwrap();
     }
 }
 
