@@ -1,5 +1,4 @@
 use comrak::{markdown_to_html, ComrakOptions};
-use handlebars::Handlebars;
 use serde::Serialize;
 use std::ffi::OsString;
 use std::fs::{create_dir, metadata, read_dir, File};
@@ -20,6 +19,12 @@ pub struct Post {
 pub struct FolderPaths {
   pub src: String,
   pub build: PathBuf,
+}
+
+pub struct PostPageData {
+  pub template_string: String,
+  pub data: Post,
+  pub output_file: File,
 }
 
 pub fn read_markdown_files(path: &String) -> Vec<PathBuf> {
@@ -100,9 +105,7 @@ fn path_exists(path: &PathBuf) -> bool {
   metadata(path).is_ok()
 }
 
-pub fn generate_post_page(paths: &FolderPaths, post: &Post) {
-  let reg = Handlebars::new();
-
+pub fn generate_post_page(paths: &FolderPaths, post: Post) -> PostPageData {
   // Generate path to template
   let mut path = PathBuf::new();
   path.push(&paths.src);
@@ -126,7 +129,10 @@ pub fn generate_post_page(paths: &FolderPaths, post: &Post) {
   output_path.set_extension("html");
 
   template.read_to_string(&mut template_string).unwrap();
-  reg
-    .render_template_to_write(&template_string, &post, File::create(output_path).unwrap())
-    .unwrap();
+
+  PostPageData {
+    template_string: template_string,
+    data: post,
+    output_file: File::create(output_path).unwrap(),
+  }
 }

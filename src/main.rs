@@ -33,6 +33,11 @@ struct IndexPage {
     posts: Vec<Post>,
 }
 
+struct PartialData {
+    name: String,
+    partial_string: String,
+}
+
 fn generate_index_page(posts: Vec<Post>, base_folder_path: &String) {
     let reg = Handlebars::new();
 
@@ -160,13 +165,13 @@ fn unzip(zip_archive_name: &String) -> FolderPaths {
     }
 }
 
-fn register_partials(base_path: &String) {
+fn register_partials(base_path: &String) -> Vec<PartialData> {
+    let mut partials: Vec<PartialData> = vec![];
+
     // Create a path buffer to the partials folder path
     let mut partials_path = PathBuf::new();
     partials_path.push(base_path);
     partials_path.push("partials");
-
-    let mut reg = Handlebars::new();
 
     let files = read_dir(partials_path).unwrap();
 
@@ -176,8 +181,9 @@ fn register_partials(base_path: &String) {
         // Extract the filename and path from the metadata
         let partial_path = partial_metadata.path();
         let partial_name = partial_metadata.file_name().into_string().unwrap();
+
         let partial_name_fragments: Vec<&str> = partial_name.split(".").collect();
-        let partial_name =  partial_name_fragments.first().unwrap();
+        let partial_name = String::from(partial_name_fragments[0]);
 
         // Read the partial file and plug the string in as the template for registration
         let mut partial_file = File::open(partial_path).unwrap();
@@ -187,8 +193,14 @@ fn register_partials(base_path: &String) {
 
         // Register the partial
         println!("Registering partial: {}", partial_name);
-        reg.register_partial(partial_name, partial_string).unwrap();
+
+        partials.push(PartialData {
+            name: partial_name,
+            partial_string: partial_string,
+        });
     }
+
+    return partials;
 }
 
 fn main() {
@@ -200,6 +212,9 @@ fn main() {
     // Unzip the archive, returning the output folder name
     let folder_names = unzip(&zip_archive_name);
 
+    // Create the Handlebars registry
+    let mut registry = Handlebars::new();
+
     let mut assets_path = PathBuf::new();
     assets_path.push(&folder_names.src);
     assets_path.push("assets");
@@ -207,7 +222,13 @@ fn main() {
     build_assets(&assets_path, &folder_names.build);
 
     // Register partials
-    register_partials(&folder_names.src);
+    let partials = register_partials(&folder_names.src);
+
+    for partial in partials {
+        registry
+            .register_partial(&partial.name, partial.partial_string)
+            .unwrap()
+    }
 
     let post_paths = read_markdown_files(&folder_names.src);
     let mut posts: Vec<Post> = vec![];
@@ -218,9 +239,17 @@ fn main() {
             p.file_name().unwrap()
         );
         let post = parse_post(&p);
-        generate_post_page(&folder_names, &post);
+        let post_page = generate_post_page(&folder_names, post);
 
-        posts.push(post);
+        registry
+            .render_template_to_write(
+                &post_page.template_string,
+                &post_page.data,
+                post_page.output_file,
+            )
+            .unwrap();
+
+        posts.push(post_page.data);
     }
 
     println!("Posts generated: {}", posts.len());
