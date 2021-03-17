@@ -23,7 +23,7 @@ use uuid::Uuid;
  * 3. Parse Markdown posts
  * 4. Register all partials
  * 5. Generate the HTML from the templates and the posts using the Handlebars engine
- * 6. Compile the SCSS if there is any, and build out the projectž
+ * 6. Compile the SCSS if there is any, and build out the project
  * 7. Zip the build and serve it to the user
  * 8. Remove the project directory and the source zip file
  */
